@@ -12,13 +12,16 @@ I see there are official code on the big project of the program, but there is no
 ![LIdAR_POINT](https://github.com/xinchenstephen/sensor_fuion_udacity/blob/master/img/lidar.png)
 
 * Camera
+
 basic calculation and equation on the time to collision(TTC)
 
 * SFND_2D_Feature_Tracking
+
 select the best combination of detector and descriptor
 ![2Dtracking](https://github.com/xinchenstephen/sensor_fuion_udacity/blob/master/img/2D.png)
 
 * SFND_3D_Object_Tracking
+
 fusion the camera data and lidar data to track the object that we are interested in and calculate the time to collistion
 ![3Dtracking](https://github.com/xinchenstephen/sensor_fuion_udacity/blob/master/img/3D.png)
 
