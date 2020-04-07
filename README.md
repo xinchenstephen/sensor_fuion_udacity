@@ -9,6 +9,7 @@ I see there are official code on the big project of the program, but there is no
 # content project
 
 * LIDAR_POINT
+![LIdAR_POINT](https://github.com/xinchenstephen/sensor_fuion_udacity/blob/master/img/lidar.png)
 
 * Camera
 basic calculation and equation on the time to collision(TTC)
@@ -19,6 +20,6 @@ select the best combination of detector and descriptor
 
 * SFND_3D_Object_Tracking
 fusion the camera data and lidar data to track the object that we are interested in and calculate the time to collistion
-![3Dtracking]
+![3Dtracking](https://github.com/xinchenstephen/sensor_fuion_udacity/blob/master/img/3D.png)
 
 
