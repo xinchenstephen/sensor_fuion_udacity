@@ -8,10 +8,15 @@ I see there are official code on the big project of the program, but there is no
 
 # content project
 
+* LIDAR_POINT
+
 * Camera
+basic calculation and equation on the time to collision(TTC)
 
 * SFND_2D_Feature_Tracking
+select the best combination of detector and descriptor
 
-* SFND_2D_Object_Tracking
+* SFND_3D_Object_Tracking
+fusion the camera data and lidar data to track the object that we are interested in and calculate the time to collistion
 
 
