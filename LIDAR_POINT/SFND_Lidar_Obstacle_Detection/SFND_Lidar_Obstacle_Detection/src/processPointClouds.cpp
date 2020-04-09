@@ -42,8 +42,19 @@ template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
-
-    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(cloud, cloud);
+    typename pcl::PointCloud<PointT>::Ptr planecloud(new pcl::PointCloud<PointT>());
+    typename pcl::PointCloud<PointT>::Ptr obstaclecloud(new pcl::PointCloud<PointT>());
+  for(int index : inliers->indices)
+  {
+    planecloud->points.push_back(cloud->points[index]);
+  }
+  pcl::ExtractIndices<PointT> extract;
+  extract.setInputCloud(cloud);
+  extract.setIndices(inliers);
+  extract.setNegative(true);
+  extract.filter(*obstaclecloud);
+  
+    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(obstaclecloud, planecloud);
     return segResult;
 }
 
@@ -53,8 +64,29 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 {
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
-	pcl::PointIndices::Ptr inliers;
     // TODO:: Fill in this function to find inliers for the cloud.
+  
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
+    // Create the segmentation object
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    // Optional
+    seg.setOptimizeCoefficients (true);
+    // Mandatory
+    seg.setModelType (pcl::SACMODEL_PLANE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setMaxIterations (maxIterations);
+    seg.setDistanceThreshold (distanceThreshold);
+
+    // Create the filtering object
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+
+    seg.setInputCloud (cloud);
+    seg.segment (*inliers, *coefficients);
+    if (inliers->indices.size () == 0)
+    {
+      std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+    }
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
@@ -69,43 +101,43 @@ template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
 
-    // Time clustering process
-    auto startTime = std::chrono::steady_clock::now();
+//     // Time clustering process
+//     auto startTime = std::chrono::steady_clock::now();
 
-    std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
+//     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
-    // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-    tree->setInputCloud (cloud);
+//     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
+//     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+//     tree->setInputCloud (cloud);
 
-    std::vector<pcl::PointIndices> cluster_indices;
-    pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-    ec.setClusterTolerance (clusterTolerance); // 2cm
-    ec.setMinClusterSize (minSize);
-    ec.setMaxClusterSize (maxSize);
-    ec.setSearchMethod (tree);
-    ec.setInputCloud (cloud);
-    ec.extract (cluster_indices);
+//     std::vector<pcl::PointIndices> cluster_indices;
+//     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+//     ec.setClusterTolerance (clusterTolerance); // 2cm
+//     ec.setMinClusterSize (minSize);
+//     ec.setMaxClusterSize (maxSize);
+//     ec.setSearchMethod (tree);
+//     ec.setInputCloud (cloud);
+//     ec.extract (cluster_indices);
   
-    //put the points that are in the cluster_indices into the clusters
-    for (pcl::PointIndices PointIndices : cluster_indices)
-    {
-      pcl::PointCloud<PointT>::Ptr cluster(new pcl::PointCloud<PointT>::Ptr);
-      for (auto indices : PointIndices)
-      {
-        cluster->push_back(cloud -> points[indices]);
-      }
-      cluster->width = cluster->points.size ();
-      cluster->height = 1;
-      cluster->is_dense = true;
-      clusters.push_back(cluster);
-    }
-    
-    auto endTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
+//     //put the points that are in the cluster_indices into the clusters
+//     for (pcl::PointIndices PointIndices : cluster_indices)
+//     {
+//       pcl::PointCloud<PointT>::Ptr cluster(new pcl::PointCloud<PointT>::Ptr);
+//       for (auto indices : PointIndices)
+//       {
+//         cluster->push_back(cloud -> points[indices]);
+//       }
+//       cluster->width = cluster->points.size ();
+//       cluster->height = 1;
+//       cluster->is_dense = true;
+//       clusters.push_back(cluster);
+//     }
 
-    return clusters;
+//     auto endTime = std::chrono::steady_clock::now();
+//     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+//     std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
+
+    //return clusters;
 }
 
 
