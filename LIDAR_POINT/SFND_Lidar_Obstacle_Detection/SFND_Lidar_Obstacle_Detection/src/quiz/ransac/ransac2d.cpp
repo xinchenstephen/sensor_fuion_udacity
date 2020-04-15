@@ -63,12 +63,50 @@ pcl::visualization::PCLVisualizer::Ptr initScene()
 
 std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
 {
-	std::unordered_set<int> inliersResult;
 	srand(time(NULL));
-	
+	std::unordered_set<int> maxinliersResult;
 	// TODO: Fill in this function
-
+    int maxnum = 0;
 	// For max iterations 
+	for (int i = 0; i < maxIterations; i++)
+	{
+		//randomly select from the cloud
+		std::unordered_set<int> inliers;
+		while(inliers.size() < 2)
+		      inliers.insert(rand() % cloud -> points.size());
+		float x1,x2,y1,y2;
+
+		auto itr = inliers.begin();
+		x1 = cloud -> points[*itr].x;
+		y1 = cloud -> points[*itr].y;
+		itr ++;
+		x2 = cloud -> points[*itr].x;
+		y2 = cloud -> points[*itr].y;
+		float A,B,C;
+		A = y1 - y2;
+		B = x2 - x1;
+		C = x1 * y2 - x2 * y1;
+
+		for (int j = 0; j < cloud -> points.size(), j++)
+		{
+			if (inliers.count(j) > 0)
+			   continue;
+			//calculater the inliers
+			float x = cloud -> points[j].x;
+			float y = cloud -> points[j].y;
+			dis = abs(A * x + B * y + C) / sqrt(A^2 + B^2);
+			if (dis < distanceTol)
+			{
+				//put the point into the inliersResult
+				inliers.push_back(j);
+			}
+		}
+		if (inliers.size() > maxnum)
+		{
+			maxinliersResult = inliers;
+		}
+
+	}
 
 	// Randomly sample subset and fit line
 

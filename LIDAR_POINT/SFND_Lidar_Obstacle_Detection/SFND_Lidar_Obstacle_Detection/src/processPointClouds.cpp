@@ -46,7 +46,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     typename pcl::PointCloud<PointT>::Ptr obstaclecloud(new pcl::PointCloud<PointT>());
   for(int index : inliers->indices)
   {
-    planecloud->points.push_back(cloud->points[index]);
+     planecloud->points.push_back(cloud->points[index]);
   }
   pcl::ExtractIndices<PointT> extract;
   extract.setInputCloud(cloud);
